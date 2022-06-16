@@ -3,7 +3,7 @@ Monty 0.98 is a scripting language that is first compiled into Monty byte codes 
 It relies on a unique stack, with specific instructions to manipulate it. The goal of this project
 is to create an interpreter for Monty ByteCodes files.
 
-Our interpreter can be run as either a stack (LIFO) or queue (FIFO). Mode can be switched mid-script.
+This interpreter can be run as either a stack (LIFO) or queue (FIFO). Mode can be switched mid-script.
 The interpreter can handle a variety of Monty opcodes, including printing, mathematical operations,
 and more - all handled opcodes are listed below.
 
@@ -14,7 +14,7 @@ and more - all handled opcodes are listed below.
 * [GCC 4.8.4](https://gcc.gnu.org/gcc-4.8/) - Compiler used
 
 
-## :warning: Prerequisites
+## Prerequisites
 
 * Must have `git` installed.
 
@@ -174,3 +174,7 @@ $ ./monty queue.m
 1
 2
 3
+```
+* **Brainf*ck**
+  * All your Brainf*ck files should be stored inside the bf sub directory.
+  * You can install the `bf` interpreter to test your code:` sudo apt-get install bf`
