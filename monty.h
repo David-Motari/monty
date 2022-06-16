@@ -9,7 +9,7 @@
 #define QUEUE 1
 #define DELIMS " \n\t\a\b"
 
-/* Global opcode token  */
+/* Global variable(opcode token) */
 extern char **op_toks;
 
 /**
@@ -42,7 +42,7 @@ typedef struct instruction_s
 	void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
-/* Primary interpreter func */
+/* functions core to the interpretor*/
 void free_stack(stack_t **stack);
 int init_stack(stack_t **stack);
 int check_mode(stack_t *stack);
@@ -51,7 +51,7 @@ unsigned int token_arr_len(void);
 int run_monty(FILE *script_fd);
 void set_op_tok_error(int error_code);
 
-/* Opcode functions */
+/*Functions for opcode */
 void monty_push(stack_t **stack, unsigned int line_number);
 void monty_pall(stack_t **stack, unsigned int line_number);
 void monty_pint(stack_t **stack, unsigned int line_number);
@@ -70,11 +70,11 @@ void monty_rotr(stack_t **stack, unsigned int line_number);
 void monty_stack(stack_t **stack, unsigned int line_number);
 void monty_queue(stack_t **stack, unsigned int line_number);
 
-/* Custom standard library functions */
+/* stdlib custom funcs*/
 char **strtow(char *str, char *delims);
 char *get_int(int n);
 
-/* Error  codes */
+/* prototypes for error code*/
 int usage_error(void);
 int malloc_error(void);
 int f_open_error(char *filename);
@@ -85,5 +85,12 @@ int pint_error(unsigned int line_number);
 int short_stack_error(unsigned int line_number, char *op);
 int div_error(unsigned int line_number);
 int pchar_error(unsigned int line_number, char *message);
+/*_itoa.c functions*/
 
-#endif /* __MONTY_H__ */
+char *get_int(int num);
+unsigned int _abs(int);
+int get_numbase_len(unsigned int num, unsigned int base);
+void fill_numbase_buff(unsigned int num, unsigned int base, 
+		char *buff, int buff_size);
+
+#endif
