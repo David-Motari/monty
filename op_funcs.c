@@ -9,17 +9,16 @@ void monty_push(stack_t **stack, unsigned int line_number)
 {
 	stack_t *tmp, *new;
 	int i;
+
 	new = malloc(sizeof(stack_t));
 	if (new == NULL)
 	{
 		set_op_tok_error(malloc_error());
-		return;
-	}
+		return; }
 	if (op_toks[1] == NULL)
 	{
 		set_op_tok_error(no_int_error(line_number));
-		return;
-	}
+		return; }
 	for (i = 0; op_toks[1][i]; i++)
 	{
 		if (op_toks[1][i] == '-' && i == 0)
@@ -31,7 +30,7 @@ void monty_push(stack_t **stack, unsigned int line_number)
 		}
 	}
 	new->n = atoi(op_toks[1]);
-	if (check_mode(*stack) == STACK) /* STACK LIFO, FILO*/
+	if (check_mode(*stack) == STACK) /* STACK LIFO, FILO*/ /*QUEUE*/
 	{
 		tmp = (*stack)->next;
 		new->prev = *stack;
@@ -40,15 +39,13 @@ void monty_push(stack_t **stack, unsigned int line_number)
 			tmp->prev = new;
 		(*stack)->next = new;
 	}
-	else /* QUEUE FIFO, LILO*/
-	{
+
 		tmp = *stack;
 		while (tmp->next)
 			tmp = tmp->next;
 		new->prev = tmp;
 		new->next = NULL;
 		tmp->next = new;
-	}
 }
 
 /**
