@@ -27,7 +27,7 @@ void mod(stack_t **stack, unsigned int nline)
 	}
 
     /*value of next update*/
-	temp->next->n %= temp->n;	
+	temp->next->n %= temp->n;
 	temp = temp->next;
 	temp->prev = NULL;
 	free(*stack);
@@ -100,9 +100,9 @@ void rotl(stack_t **stack, unsigned int nline)
 		current = current->next;
 
 	/* Turn linked list circular*/
-    current->next = head;
+	current->next = head;
     /* move first node to second position*/
-	*stack = head->next; 
+	*stack = head->next;
 	head->next = NULL;
 	head->prev = current;
 }
@@ -127,7 +127,7 @@ void rotr(stack_t **stack, unsigned int nline)
 		current = current->next;
 
 	/*Turn linked list circular*/
-    current->next = head; 
+	current->next = head;
 	head->prev = current;
 	current->prev->next = NULL;
 	current->prev = NULL;
