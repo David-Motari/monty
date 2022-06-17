@@ -1,29 +1,101 @@
 #include "monty.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
-char **op_toks = NULL;
-
+monty_t monty;
 /**
- * main - the entry point for monty interpreter
- *
- * @argc: the count of arguments passed to the program
- * @argv: pointer to an array of char pointers to arguments
- *
- * Return: EXIT_SUCCESS if success else EXIT_FAILURE on error
+ * check_args - check the arguments for monty
+ * @argc: argument count
+ * @argv: argument vector
+ * Return: FILE stream
  */
-int main(int argc, char **argv)
+FILE *check_args(int argc, char *argv[])
 {
-	FILE *script_fd = NULL;
-	int exit_code = EXIT_SUCCESS;
+	FILE *fd;
 
 	if (argc != 2)
-		return (usage_error());
-	script_fd = fopen(argv[1], "r");
-	if (script_fd == NULL)
-		return (f_open_error(argv[1]));
-	exit_code = run_monty(script_fd);
-	fclose(script_fd);
-	return (exit_code);
+	{
+		dprintf(STDERR_FILENO, "USAGE: monty file\n");
+		exit(EXIT_FAILURE);
+	}
+
+	fd = fopen(argv[1], "r");
+	if (!fd)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't open file %s\n", argv[1]);
+		exit(EXIT_FAILURE);
+	}
+
+	return (fd);
+}
+
+/**
+ * init_monty - initialize globla variable
+ * @fd: File descriptor
+ */
+void init_monty(FILE *fd)
+{
+	monty.fd = fd;
+	monty.nline = 0;
+	monty.stack = NULL;
+	monty.arg = NULL;
+	monty.line = NULL;
+	monty.operate = "stack";
+}
+
+/**
+ * free_monty - initialize globla variable
+ */
+void free_monty(void)
+{
+	while (monty.stack && monty.stack->next)
+	{
+		monty.stack = monty.stack->next;
+		if (monty.stack)
+			free(monty.stack->prev);
+	}
+	if (monty.stack)
+		free(monty.stack);
+	if (monty.line)
+		free(monty.line);
+	fclose(monty.fd);
+}
+
+/**
+ * main - the main operations take place
+ *
+ * @argc: number of argument
+ * @argv: array of elements
+ * Return: EXIT_SUCCESS if success else EXIT_FAILURE
+ */
+int main(int argc, char *argv[])
+{
+	FILE *fd;
+	ssize_t flag;
+	size_t len = 0;
+	char *opcode;
+	void (*f)(stack_t **stack, unsigned int nline);
+	const char DELIMITER[4] = " \t\n";
+
+	fd = check_args(argc, argv);
+	init_monty(fd);
+	while ((flag = getline(&monty.line, &len, fd) != -1))
+	{
+		monty.nline++;
+		opcode = strtok(monty.line, DELIMITER);
+		if (opcode && opcode[0] != '#')
+		{
+			monty.arg = strtok(NULL, DELIMITER);
+
+			f = get_ops(opcode);
+			if (!f)
+			{
+				dprintf(2, "L%d: unknown instruction %s\n", monty.nline, opcode);
+				free_monty();
+				exit(EXIT_FAILURE);
+			}
+			f(&monty.stack, monty.nline);
+		}
+	}
+
+	free_monty();
+	return (EXIT_SUCCESS);
 }

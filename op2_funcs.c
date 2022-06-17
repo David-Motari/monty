@@ -1,55 +1,118 @@
 #include "monty.h"
 
 /**
- * monty_nop - Does absolutely nothing for the Monty opcode 'nop'.
- * @stack: A pointer to the top mode node of a stack_t linked list.
- * @line_number: The current working line number of a Monty bytecodes file.
+ * add - adds the top two elements of the stack
+ *
+ * @stack: first node in the list
+ * @nline: line  currently on
  */
-void monty_nop(stack_t **stack, unsigned int line_number)
+void add(stack_t **stack, unsigned int nline)
+{
+	stack_t *temp;
+
+	temp = *stack;
+	if (!temp || !temp->next)
+	{
+		dprintf(STDERR_FILENO, "L%u: can't add, stack too short\n", nline);
+		exit(EXIT_FAILURE);
+	}
+
+	temp->next->n += temp->n;	/* update value of next */
+	temp = temp->next;
+	temp->prev = NULL;
+	free(*stack);
+	*stack = temp;
+}
+
+/**
+ * nop - doesn't do anything
+ *
+ * @stack: first node in the list
+ * @nline: line  currently on
+ */
+void nop(stack_t **stack, unsigned int nline)
 {
 	(void)stack;
-	(void)line_number;
+	(void)nline;
 }
 
 /**
- * monty_pchar - Prints the character in the top value
- *               node of a stack_t linked list.
- * @stack: A pointer to the top mode node of a stack_t linked list.
- * @line_number: The current working line number of a Monty bytecodes file.
+ * sub - subtracts the top element of the stack from the
+ * second top element of the stack.
+ *
+ * @stack: first node in the list
+ * @nline: line  currently on
  */
-void monty_pchar(stack_t **stack, unsigned int line_number)
+void sub(stack_t **stack, unsigned int nline)
 {
-	if ((*stack)->next == NULL)
+	stack_t *temp;
+
+	temp = *stack;
+	if (!temp || !temp->next)
 	{
-		set_op_tok_error(pchar_error(line_number, "stack empty"));
-		return;
-	}
-	if ((*stack)->next->n < 0 || (*stack)->next->n > 127)
-	{
-		set_op_tok_error(pchar_error(line_number,
-					     "value out of range"));
-		return;
+		dprintf(STDERR_FILENO, "L%u: can't sub, stack too short\n", nline);
+		exit(EXIT_FAILURE);
 	}
 
-	printf("%c\n", (*stack)->next->n);
+	temp->next->n -= temp->n;	/* update value of next */
+	temp = temp->next;
+	temp->prev = NULL;
+	free(*stack);
+	*stack = temp;
 }
 
 /**
- * monty_pstr - Prints the string contained in a stack_t linked list.
- * @stack: A pointer to the top mode node of a stack_t linked list.
- * @line_number: The current working line number of a Monty bytecodes file.
+ * o_div - divides the second top element of the stack
+ * by the top element of the stack.
+ *
+ * @stack: first node in the list
+ * @nline: line  currently on
  */
-void monty_pstr(stack_t **stack, unsigned int line_number)
+void o_div(stack_t **stack, unsigned int nline)
 {
-	stack_t *tmp = (*stack)->next;
+	stack_t *temp;
 
-	while (tmp && tmp->n != 0 && (tmp->n > 0 && tmp->n <= 127))
+	temp = *stack;
+	if (!temp || !temp->next)
 	{
-		printf("%c", tmp->n);
-		tmp = tmp->next;
+		dprintf(STDERR_FILENO, "L%u: can't div, stack too short\n", nline);
+		exit(EXIT_FAILURE);
 	}
 
-	printf("\n");
+	if (temp->n == 0)
+	{
+		dprintf(STDERR_FILENO, "L%u: division by zero\n", nline);
+		exit(EXIT_FAILURE);
+	}
 
-	(void)line_number;
+	temp->next->n /= temp->n;	/* update value of next */
+	temp = temp->next;
+	temp->prev = NULL;
+	free(*stack);
+	*stack = temp;
+}
+
+/**
+ * mul -  multiplies the second top element of the stack
+ * with the top element of the stack.
+ *
+ * @stack: first node in the list
+ * @nline: line  currently on
+ */
+void mul(stack_t **stack, unsigned int nline)
+{
+	stack_t *temp;
+
+	temp = *stack;
+	if (!temp || !temp->next)
+	{
+		dprintf(STDERR_FILENO, "L%u: can't mul, stack too short\n", nline);
+		exit(EXIT_FAILURE);
+	}
+
+	temp->next->n *= temp->n;	/* update value of next */
+	temp = temp->next;
+	temp->prev = NULL;
+	free(*stack);
+	*stack = temp;
 }

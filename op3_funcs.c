@@ -1,75 +1,136 @@
 #include "monty.h"
 
 /**
- * monty_rotl - Rotates the top value of a stack_t linked list to the bottom.
- * @stack: A pointer to the top mode node of a stack_t linked list.
- * @line_number: The current working line number of a Monty bytecodes file.
+ * push - adds node to top of stack
+ *
+ * @stack: first node in the list
+ * @nline: line  currently on
  */
-void monty_rotl(stack_t **stack, unsigned int line_number)
+void push(stack_t **stack, unsigned int nline)
 {
-	stack_t *top, *bottom;
+	stack_t *new_node, *temp = *stack;
+	int value;
 
-	if ((*stack)->next == NULL || (*stack)->next->next == NULL)
+
+	if (!monty.arg || !_isdigit(monty.arg))
+	{
+		dprintf(STDERR_FILENO, "L%u: usage: push integer\n", nline);
+		exit(EXIT_FAILURE);
+	}
+	value = atoi(monty.arg);
+
+	new_node = malloc(sizeof(stack_t));
+	if (!new_node)
+		exit(EXIT_FAILURE);
+
+	new_node->n = value, new_node->next = NULL, new_node->prev = NULL;
+
+	if (!(*stack))
+	{
+		*stack = new_node;
 		return;
+	}
 
-	top = (*stack)->next;
-	bottom = (*stack)->next;
-	while (bottom->next != NULL)
-		bottom = bottom->next;
-
-	top->next->prev = *stack;
-	(*stack)->next = top->next;
-	bottom->next = top;
-	top->next = NULL;
-	top->prev = bottom;
-
-	(void)line_number;
-}
-
-/**
- * monty_rotr - Rotates the bottom value of a stack_t linked list to the top.
- * @stack: A pointer to the top mode node of a stack_t linked list.
- * @line_number: The current working line number of a Monty bytecodes file.
- */
-void monty_rotr(stack_t **stack, unsigned int line_number)
-{
-	stack_t *top, *bottom;
-
-	if ((*stack)->next == NULL || (*stack)->next->next == NULL)
+	if (strcmp("stack", monty.operate) == 0)	/* for (LIFO) */
+	{
+		(*stack)->prev = new_node;
+		new_node->next = *stack;
+		*stack = new_node;
 		return;
+	}
 
-	top = (*stack)->next;
-	bottom = (*stack)->next;
-	while (bottom->next != NULL)
-		bottom = bottom->next;
+	if (!(*stack)->next)	/* for queue (FIFO) */
+		temp->next = new_node, new_node->prev = temp;
+	else
+	{
+		while (temp->next)
+			temp = temp->next;
 
-	bottom->prev->next = NULL;
-	(*stack)->next = bottom;
-	bottom->prev = *stack;
-	bottom->next = top;
-	top->prev = bottom;
-
-	(void)line_number;
+		temp->next = new_node, new_node->prev = temp;
+	}
 }
 
 /**
- * monty_stack - Converts a queue to a stack.
- * @stack: A pointer to the top mode node of a stack_t linked list.
- * @line_number: The current working line number of a Monty bytecodes file.
+ * pall - print all value of list
+ *
+ * @stack: first node in the list
+ * @nline: line  currently on
  */
-void monty_stack(stack_t **stack, unsigned int line_number)
+void pall(stack_t **stack, unsigned int nline)
 {
-	(*stack)->n = STACK;
-	(void)line_number;
+	stack_t *temp;
+	(void)nline;
+
+	temp = *stack;
+	while (temp)
+	{
+		printf("%d\n", temp->n);
+		temp = temp->next;
+	}
 }
 
 /**
- * monty_queue - Converts a stack to a queue.
- * @stack: A pointer to the top mode node of a stack_t linked list.
- * @line_number: The current working line number of a Monty bytecodes file.
+ * pint - prints the value at the top of stack
+ *
+ * @stack: first node in the list
+ * @nline: line  currently on
  */
-void monty_queue(stack_t **stack, unsigned int line_number)
+void pint(stack_t **stack, unsigned int nline)
 {
-	(*stack)->n = QUEUE;
-	(void)line_number;
+	if (!*stack)
+	{
+		dprintf(STDERR_FILENO, "L%u: can't pint, stack empty\n", nline);
+		exit(EXIT_FAILURE);
+	}
+
+	printf("%d\n", (*stack)->n);
+}
+
+/**
+ * pop - deletes top item in stack
+ *
+ * @stack: head node in the list
+ * @nline: current line
+ */
+void pop(stack_t **stack, unsigned int nline)
+{
+	stack_t *temp;
+
+	if (!*stack)
+	{
+		dprintf(STDERR_FILENO, "L%u: can't pop an empty stack\n", nline);
+		exit(EXIT_FAILURE);
+	}
+
+	temp = *stack;
+	temp = temp->next;
+	free(*stack);
+	if (temp)
+		temp->prev = NULL;
+	*stack = temp;
+}
+
+/**
+ * swap - swaps two elements on-top  of stack
+ *
+ * @stack: head node in the list
+ * @nline: current line
+ */
+void swap(stack_t **stack, unsigned int nline)
+{
+	stack_t *temp;
+temp = *stack;
+	if (!temp || !temp->next)
+	{
+		dprintf(STDERR_FILENO, "L%u: can't swap, stack too short\n", nline);
+		exit(EXIT_FAILURE);
+	}
+
+	temp->prev = temp->next;
+	temp->next->prev = NULL;
+	if (temp->next->next)
+		temp->next->next->prev = temp;
+	temp->next = temp->next->next;
+	temp->prev->next = temp;
+	*stack = temp->prev;
 }
